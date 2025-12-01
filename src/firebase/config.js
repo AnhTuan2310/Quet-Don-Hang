@@ -10,7 +10,7 @@ import { getAuth } from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyDOWgNdGh46EtxysLiYSeZU_KcEb52P8wc",
   authDomain: "khohang-234.firebaseapp.com",
   projectId: "khohang-234",
