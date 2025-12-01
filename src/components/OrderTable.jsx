@@ -121,8 +121,9 @@ const OrderTable = ({ isAdmin }) => {
         dataSource={filteredData} 
         columns={columns} 
         rowKey="id" 
-        pagination={{ pageSize: 10 }} 
-        scroll={{ x: 600 }} // Hỗ trợ cuộn ngang trên mobile
+        pagination={{ pageSize: 10, size: "small" }} // size small cho mobile gọn hơn
+        scroll={{ x: 500 }} // QUAN TRỌNG: Cho phép trượt ngang nếu màn hình nhỏ hơn 500px
+        size="middle" // Kích thước dòng vừa phải
       />
     </div>
   );

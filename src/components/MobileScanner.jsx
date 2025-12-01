@@ -83,8 +83,17 @@ const MobileScanner = () => {
   };
 
   return (
-    <Card title={`Máy quét (Người dùng: ${currentUserName || '...'})`} style={{ marginTop: 20, textAlign: 'center' }}>
-      {isScanning && <div id="reader"></div>}
+    <Card 
+        title={`Máy quét: ${currentUserName || '...'}`} 
+        style={{ marginTop: 10, textAlign: 'center', width: '100%' }} 
+        bodyStyle={{ padding: '10px' }} // Giảm padding của Card
+    >
+      {isScanning && (
+        <div 
+            id="reader" 
+            style={{ width: '100%', minHeight: '300px' }} // Ép camera full width
+        ></div>
+      )}
 
       {scanResult && (
         <div style={{ color: 'green', fontWeight: 'bold', margin: '10px 0', fontSize: 16 }}>

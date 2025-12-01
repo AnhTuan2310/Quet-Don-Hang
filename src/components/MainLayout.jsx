@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Layout, Menu, Button, Avatar } from 'antd';
+import { useState, useEffect } from 'react';
+import { Layout, Menu, Button, Grid } from 'antd'; // Thêm Grid
 import { 
   BarcodeOutlined, 
   UserOutlined, 
@@ -9,13 +9,21 @@ import {
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
+const { useBreakpoint } = Grid; // Hook để check xem đang dùng PC hay Mobile
 
 const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const screens = useBreakpoint(); // Lấy kích thước màn hình hiện tại
+
+  // Tự động thu gọn menu khi vào bằng điện thoại (khi màn hình < lg)
+  useEffect(() => {
+    if (!screens.lg) {
+      setCollapsed(true);
+    }
+  }, [screens.lg]);
 
   const items = [
     { key: 'scan', icon: <BarcodeOutlined />, label: 'Quét & Danh sách' },
-    // Chỉ hiện menu Admin nếu role là admin
     ...(userRole === 'admin' ? [{ key: 'users', icon: <UserOutlined />, label: 'Quản lý nhân viên' }] : []),
   ];
 
@@ -24,91 +32,69 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
       <Sider 
         trigger={null} 
         collapsible 
-        collapsed={collapsed} 
-        theme="light"
-        style={{ 
-          boxShadow: '2px 0 8px 0 rgba(29,35,41,.05)', 
-          zIndex: 10,
-          position: 'relative' // Để đặt nút logout tuyệt đối
+        collapsed={collapsed}
+        breakpoint="lg" 
+        collapsedWidth="0" // TRÊN MOBILE: Thu gọn bằng 0 (biến mất luôn)
+        onBreakpoint={(broken) => {
+            setCollapsed(broken);
         }}
+        style={{ 
+          zIndex: 100, // Đè lên trên để không bị che
+          height: '100vh',
+          position: !screens.lg ? 'fixed' : 'relative', // Mobile thì menu nổi lên trên
+          left: 0,
+        }}
+        theme="light"
       >
-        {/* Logo */}
         <div style={{ 
-            height: 64, 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            background: '#001529',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: collapsed ? '14px' : '18px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
+            height: 64, display: 'flex', justifyContent: 'center', alignItems: 'center', 
+            background: '#001529', color: 'white', fontWeight: 'bold', fontSize: '18px'
         }}>
-            {collapsed ? 'KHO' : 'KHO HÀNG'}
+            {collapsed ? '' : 'KHO HÀNG'}
         </div>
 
-        {/* Menu */}
         <Menu
           theme="light"
           mode="inline"
           selectedKeys={[activeKey]}
-          onClick={(e) => onMenuClick(e.key)}
+          onClick={(e) => {
+              onMenuClick(e.key);
+              if (!screens.lg) setCollapsed(true); // Mobile: Chọn xong tự đóng menu
+          }}
           items={items}
-          style={{ borderRight: 0 }}
         />
 
-        {/* Nút Đăng Xuất (Luôn nằm dưới đáy) */}
-        <div style={{ 
-            position: 'absolute', 
-            bottom: 0, 
-            width: '100%', 
-            padding: '20px', 
-            borderTop: '1px solid #f0f0f0',
-            background: '#fff'
-        }}>
-            <Button 
-                type="primary" 
-                danger 
-                icon={<LogoutOutlined />} 
-                block={!collapsed} // Nếu mở menu thì nút dài ra, đóng thì nút tròn
-                shape={collapsed ? "circle" : "default"}
-                onClick={onLogout}
-                title="Đăng xuất"
-            >
-                {!collapsed && "Đăng xuất"}
-            </Button>
-        </div>
+        {!collapsed && (
+            <div style={{ position: 'absolute', bottom: 0, width: '100%', padding: '20px', borderTop: '1px solid #f0f0f0' }}>
+                <Button type="primary" danger icon={<LogoutOutlined />} block onClick={onLogout}>Đăng xuất</Button>
+            </div>
+        )}
       </Sider>
 
-      <Layout className="site-layout">
-        <Header style={{ padding: '0 16px', background: '#fff', display: 'flex', alignItems: 'center', boxShadow: '0 1px 4px rgba(0,21,41,.08)' }}>
+      <Layout>
+        <Header style={{ padding: 0, background: '#fff', display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 99, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
             style={{ fontSize: '16px', width: 64, height: 64 }}
           />
-          <span style={{ fontSize: 18, fontWeight: 500 }}>Hệ Thống Quản Lý</span>
+          <span style={{ fontSize: 18, fontWeight: 500 }}>Hệ Thống Kho</span>
         </Header>
         
         <Content
           style={{
-            margin: '24px 16px',
-            padding: 24,
+            margin: screens.lg ? '24px' : '10px', // Mobile: lề 10px, PC: lề 24px
+            padding: screens.lg ? 24 : 12,        // Mobile: đệm trong 12px cho rộng chỗ
+            background: '#f0f2f5',
             minHeight: 280,
-            background: '#f0f2f5', // Màu nền xám nhẹ cho toàn trang
-            display: 'flex',       // Bật flexbox
-            justifyContent: 'center', // Căn giữa theo chiều ngang
-            alignItems: 'flex-start'  // Căn lên trên cùng
+            overflowX: 'hidden' // Chặn trượt ngang cả trang
           }}
         >
-          {/* Hộp chứa nội dung chính - Sẽ luôn ở giữa */}
-          <div style={{ 
+             <div style={{ 
               width: '100%', 
-              maxWidth: '1000px', // Giới hạn chiều rộng tối đa
-              background: '#fff', // Nền trắng cho nội dung
-              padding: '24px',
+              background: '#fff', 
+              padding: screens.lg ? '24px' : '15px', // Mobile giảm padding thẻ nội dung
               borderRadius: '8px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
           }}>
