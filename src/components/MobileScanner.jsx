@@ -122,7 +122,7 @@ const MobileScanner = () => {
 
   return (
     <Card 
-        title={lastCodeDisplay ? <span style={{color: 'green', fontSize: 18}}>Vừa quét: {lastCodeDisplay}</span> : `Máy quét: ${currentUserName}`} 
+        title={lastCodeDisplay ? <span style={{color: 'green', fontSize: 18}}>Vừa quét: {lastCodeDisplay}</span> : `Tên người dùng: ${currentUserName}`} 
         style={{ marginTop: 10, textAlign: 'center', width: '100%' }}
         bodyStyle={{ padding: '10px' }}
     >
