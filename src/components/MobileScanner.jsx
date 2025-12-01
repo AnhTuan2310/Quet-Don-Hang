@@ -141,7 +141,7 @@ const MobileScanner = () => {
       >
           <Input 
             ref={inputRef}
-            placeholder={isInputFocused ? "🔫 Súng bắn sẵn sàng..." : "🖱️ Nhấn vào đây để dùng súng bắn"} 
+            placeholder={isInputFocused ? "Máy scan sẵn sàng..." : "Nhấn vào đây để dùng máy scan"} 
             onKeyDown={onManualScan}
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)} // Bỏ logic setTimeout focus
