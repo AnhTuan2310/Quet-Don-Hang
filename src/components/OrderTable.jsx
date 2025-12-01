@@ -106,7 +106,7 @@ const OrderTable = ({ isAdmin }) => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, gap: 10 }}>
         <Input 
-          placeholder="🔍 Tìm mã đơn, tên nhân viên..." 
+          placeholder=" Tìm mã đơn, tên nhân viên..." 
           prefix={<SearchOutlined />} 
           style={{ flex: 1 }} // Input tự co giãn
           onChange={e => setSearchText(e.target.value)}
