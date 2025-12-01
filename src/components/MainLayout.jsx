@@ -61,18 +61,29 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
       <div style={{ 
           padding: '20px', 
           borderTop: '1px solid #f0f0f0',
-          // Quan trọng: Thêm padding đáy lớn để tránh thanh URL Safari
-          paddingBottom: screens.xs ? '80px' : '20px' 
+          paddingBottom: screens.xs ? '80px' : '20px',
+          display: 'flex',            // Thêm flex để căn giữa khi thu nhỏ
+          justifyContent: 'center'    // Căn giữa
       }}>
           <Button 
             type="primary" 
             danger 
             icon={<LogoutOutlined />} 
-            block 
+            
+            // LOGIC FIX UI:
+            // 1. Mobile (screens.xs) hoặc Menu đang mở (!collapsed) -> Hiện nút dài (block)
+            // 2. PC thu nhỏ -> Hiện nút tròn hoặc vuông nhỏ, không block
+            block={screens.xs || !collapsed}
+            
+            // Nếu là PC thu nhỏ -> Dùng hình tròn (circle) cho đẹp
+            shape={(!screens.xs && collapsed) ? "circle" : "default"}
+            
             onClick={onLogout}
-            size="large" // Nút to cho dễ bấm
+            size="large"
+            title="Đăng xuất" // Hover vào sẽ hiện chữ
           >
-            Đăng xuất
+            {/* Chỉ hiện chữ khi là Mobile HOẶC Menu đang mở */}
+            {(screens.xs || !collapsed) ? "Đăng xuất" : null}
           </Button>
       </div>
     </div>
