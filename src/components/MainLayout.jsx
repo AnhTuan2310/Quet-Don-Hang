@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Grid, Drawer } from 'antd'; 
 import { 
-  BarcodeOutlined, 
-  UserOutlined, 
-  LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined
+  BarcodeOutlined, UserOutlined, LogoutOutlined, 
+  MenuFoldOutlined, MenuUnfoldOutlined 
 } from '@ant-design/icons';
 
 const { Header, Content, Sider } = Layout;
@@ -15,10 +12,8 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
   const [collapsed, setCollapsed] = useState(false);
   const screens = useBreakpoint(); 
 
-  // Logic mới: Trên Mobile mặc định là ĐÓNG (collapsed = true)
-  // Trên PC mặc định là MỞ (collapsed = false)
   useEffect(() => {
-    // Nếu màn hình nhỏ (Mobile/Tablet) -> Đóng menu
+    // Mobile/Tablet mặc định đóng menu
     if (screens.xs || (screens.sm && !screens.md)) {
       setCollapsed(true);
     } else {
@@ -28,22 +23,18 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
 
   const items = [
     { key: 'scan', icon: <BarcodeOutlined />, label: 'Quét & Danh sách' },
-    // Kiểm tra kỹ role admin
     ...(userRole === 'admin' ? [{ key: 'users', icon: <UserOutlined />, label: 'Quản lý nhân viên' }] : []),
   ];
 
-  // Hàm render Menu (Dùng chung cho cả PC và Mobile)
   const renderMenuContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Logo */}
       <div style={{ 
           height: 64, flexShrink: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', 
-          background: '#001529', color: 'white', fontWeight: 'bold', fontSize: '18px'
+          background: '#001529', color: 'white', fontWeight: 'bold', fontSize: '18px' 
       }}>
           {collapsed && !screens.xs ? 'KHO' : 'KHO HÀNG'}
       </div>
 
-      {/* Danh sách Menu (Chiếm phần giữa) */}
       <Menu
         theme="light"
         mode="inline"
@@ -51,38 +42,28 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
         items={items}
         onClick={(e) => {
             onMenuClick(e.key);
-            // Nếu là mobile thì chọn xong tự đóng
             if (screens.xs) setCollapsed(true);
         }}
         style={{ flex: 1, borderRight: 0 }}
       />
 
-      {/* Nút Đăng Xuất (Đẩy lên cao khỏi đáy) */}
+      {/* Nút Đăng Xuất đã Fix UI */}
       <div style={{ 
           padding: '20px', 
           borderTop: '1px solid #f0f0f0',
-          paddingBottom: screens.xs ? '80px' : '20px',
-          display: 'flex',            // Thêm flex để căn giữa khi thu nhỏ
-          justifyContent: 'center'    // Căn giữa
+          paddingBottom: screens.xs ? '80px' : '20px', 
+          display: 'flex', justifyContent: 'center'
       }}>
           <Button 
             type="primary" 
             danger 
             icon={<LogoutOutlined />} 
-            
-            // LOGIC FIX UI:
-            // 1. Mobile (screens.xs) hoặc Menu đang mở (!collapsed) -> Hiện nút dài (block)
-            // 2. PC thu nhỏ -> Hiện nút tròn hoặc vuông nhỏ, không block
-            block={screens.xs || !collapsed}
-            
-            // Nếu là PC thu nhỏ -> Dùng hình tròn (circle) cho đẹp
+            block={screens.xs || !collapsed} 
             shape={(!screens.xs && collapsed) ? "circle" : "default"}
-            
             onClick={onLogout}
-            size="large"
-            title="Đăng xuất" // Hover vào sẽ hiện chữ
+            size="large" 
+            title="Đăng xuất"
           >
-            {/* Chỉ hiện chữ khi là Mobile HOẶC Menu đang mở */}
             {(screens.xs || !collapsed) ? "Đăng xuất" : null}
           </Button>
       </div>
@@ -91,22 +72,19 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      
-      {/* 1. SIDEBAR CHO PC (Ẩn khi ở Mobile) */}
       {!screens.xs && (
         <Sider trigger={null} collapsible collapsed={collapsed} theme="light">
           {renderMenuContent()}
         </Sider>
       )}
 
-      {/* 2. DRAWER CHO MOBILE (Thay thế Sidebar cũ) */}
       {screens.xs && (
         <Drawer
           placement="left"
           onClose={() => setCollapsed(true)}
-          open={!collapsed} // Logic ngược: collapsed=true là đóng, open=false
+          open={!collapsed}
           styles={{ body: { padding: 0 } }}
-          width={260} // Độ rộng vừa phải
+          width={260}
           zIndex={1000}
         >
           {renderMenuContent()}
@@ -127,7 +105,7 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
         <Content
           style={{
             margin: screens.xs ? '10px' : '24px',
-            padding: screens.xs ? 0 : 24, // Mobile bỏ padding ngoài cho rộng
+            padding: screens.xs ? 0 : 24,
             minHeight: 280,
             overflowX: 'hidden'
           }}

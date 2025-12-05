@@ -3,17 +3,16 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { db, auth } from '../firebase/config';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { message, Button, Card, Input } from 'antd';
-import { ScanOutlined, AimOutlined } from '@ant-design/icons';
+import { ScanOutlined } from '@ant-design/icons';
 
 const MobileScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [currentUserName, setCurrentUserName] = useState('');
   const [lastCodeDisplay, setLastCodeDisplay] = useState(null);
-  const [isInputFocused, setIsInputFocused] = useState(true); // Để đổi màu input cho đẹp
+  const [isInputFocused, setIsInputFocused] = useState(true);
 
   // Ref chống spam
   const lastScanRef = useRef({ code: null, lastTime: 0 });
-  
   const inputRef = useRef(null);
   const scannerRef = useRef(null);
 
@@ -26,7 +25,6 @@ const MobileScanner = () => {
           else setCurrentUserName(auth.currentUser.email);
         } catch(e) {}
       }
-      // Focus lần đầu thôi, không cưỡng ép sau này
       inputRef.current?.focus();
     };
     init();
@@ -39,11 +37,8 @@ const MobileScanner = () => {
         { 
           fps: 10, 
           qrbox: { width: 250, height: 250 },
-          rememberLastUsedCamera: true, // Nhớ camera lần trước
-          // --- CẤU HÌNH CAMERA SAU ---
-          videoConstraints: {
-            facingMode: { ideal: "environment" } // Ưu tiên Camera sau
-          }
+          rememberLastUsedCamera: true,
+          videoConstraints: { facingMode: { ideal: "environment" } }
         },
         false
       );
@@ -66,9 +61,10 @@ const MobileScanner = () => {
   const handleProcessCode = async (code) => {
     if (!code) return;
 
-    // Logic Chặn Spam 3 giây
     const now = Date.now();
     const { code: lastCode, lastTime } = lastScanRef.current;
+    
+    // Logic chặn spam 3 giây
     if (code === lastCode && (now - lastTime < 3000)) return;
 
     lastScanRef.current = { code: code, lastTime: now };
@@ -100,9 +96,8 @@ const MobileScanner = () => {
       }
     } catch (error) {
       console.error(error);
-      message.error("Lỗi xử lý!");
+      message.error("Lỗi xử lý! (Kiểm tra Rules)");
     }
-    // Không auto focus lại ở đây để tránh giật khi đang copy
   };
 
   const onManualScan = (e) => {
@@ -115,18 +110,16 @@ const MobileScanner = () => {
     }
   };
 
-  // Hàm thủ công để lấy lại focus cho súng bắn
   const focusInput = () => {
     inputRef.current?.focus();
   };
 
   return (
     <Card 
-        title={lastCodeDisplay ? <span style={{color: 'green', fontSize: 18}}>Vừa quét: {lastCodeDisplay}</span> : `Tên người dùng: ${currentUserName}`} 
+        title={lastCodeDisplay ? <span style={{color: 'green', fontSize: 18}}>Vừa quét: {lastCodeDisplay}</span> : `Máy quét: ${currentUserName}`} 
         style={{ marginTop: 10, textAlign: 'center', width: '100%' }}
         bodyStyle={{ padding: '10px' }}
     >
-      {/* Ô Input thông minh: Đổi màu để biết trạng thái */}
       <div 
         onClick={focusInput} 
         style={{ 
@@ -141,15 +134,14 @@ const MobileScanner = () => {
       >
           <Input 
             ref={inputRef}
-            placeholder={isInputFocused ? "Máy scan sẵn sàng..." : "Nhấn vào đây để dùng máy scan"} 
+            placeholder={isInputFocused ? " Máy scan sẵn sàng nhận mã... (Nhấn Enter để gửi)" : " Nhấn vào đây để nhập mã thủ công "} 
             onKeyDown={onManualScan}
             onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)} // Bỏ logic setTimeout focus
+            onBlur={() => setIsInputFocused(false)}
             autoFocus
-            bordered={false} // Bỏ viền input mặc định
+            bordered={false}
             style={{ textAlign: 'center', background: 'transparent' }}
           />
-          {!isInputFocused && <div style={{fontSize: 12, color: '#999'}}>(Đang chọn văn bản - Nhấn lại để quét)</div>}
       </div>
 
       {isScanning ? (
