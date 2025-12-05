@@ -1,15 +1,14 @@
-// FILE: OrderTable.jsx
 import { useEffect, useState } from 'react';
 import { db } from '../firebase/config';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { Table, Card, Tag } from 'antd';
+import { collection, query, orderBy, limit, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { Table, Card, Tag, Button, Popconfirm, message, Tooltip } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 
-const OrderTable = () => {
+const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truyền vào
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Lấy 50 mã quét gần nhất, sắp xếp mới nhất lên đầu
     const q = query(
       collection(db, "scan_logs"),
       orderBy("created_at", "desc"),
@@ -27,6 +26,16 @@ const OrderTable = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Hàm xóa lịch sử quét
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "scan_logs", id));
+      message.success("Đã xóa bản ghi!");
+    } catch (error) {
+      message.error("Lỗi xóa: " + error.message);
+    }
+  };
 
   const columns = [
     {
@@ -47,10 +56,29 @@ const OrderTable = () => {
       key: 'created_at',
       render: (timestamp) => {
         if (!timestamp) return '';
-        // Chuyển đổi timestamp của Firebase sang giờ Việt Nam
         return new Date(timestamp.seconds * 1000).toLocaleString('vi-VN');
       }
-    }
+    },
+    // Logic: Nếu là Admin thì mới thêm cột Hành động vào cuối mảng columns
+    ...(isAdmin ? [{
+        title: 'Hành động',
+        key: 'action',
+        align: 'center',
+        width: 100,
+        render: (_, record) => (
+            <Tooltip title="Xóa lịch sử này">
+                <Popconfirm 
+                    title="Bạn chắc chắn muốn xóa?" 
+                    description="Hành động này không thể hoàn tác"
+                    onConfirm={() => handleDelete(record.id)}
+                    okText="Xóa"
+                    cancelText="Hủy"
+                >
+                    <Button danger icon={<DeleteOutlined />} size="small" />
+                </Popconfirm>
+            </Tooltip>
+        )
+    }] : [])
   ];
 
   return (
@@ -70,6 +98,5 @@ const OrderTable = () => {
     </Card>
   );
 };
-
 
 export default OrderTable;
