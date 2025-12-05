@@ -32,7 +32,7 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
           height: 64, flexShrink: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', 
           background: '#001529', color: 'white', fontWeight: 'bold', fontSize: '18px' 
       }}>
-          {collapsed && !screens.xs ? 'KHO' : 'KHO HÀNG'}
+          {collapsed && !screens.xs ? 'KHO' : 'KHO SCAN'}
       </div>
 
       <Menu
@@ -99,7 +99,7 @@ const MainLayout = ({ children, userRole, onMenuClick, onLogout, activeKey }) =>
             onClick={() => setCollapsed(!collapsed)}
             style={{ fontSize: '16px', width: 64, height: 64 }}
           />
-          <span style={{ fontSize: 18, fontWeight: 500 }}>Hệ Thống Kho</span>
+          <span style={{ fontSize: 18, fontWeight: 500 }}>Hệ thống check đơn</span>
         </Header>
         
         <Content
