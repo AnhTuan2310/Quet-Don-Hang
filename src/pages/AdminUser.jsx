@@ -31,7 +31,7 @@ const AdminUser = () => {
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email: values.email,
         name: values.name,
-        role: values.role || 'staff',
+        role: 'staff',
         created_at: serverTimestamp(),
         created_by_admin: true
       });
@@ -130,9 +130,8 @@ const AdminUser = () => {
           <Form.Item label="Tên hiển thị" name="name" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email' }]}><Input /></Form.Item>
           <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, min: 6 }]}><Input.Password /></Form.Item>
-          <Form.Item label="Quyền hạn" name="role" initialValue="staff">
-            <Select><Select.Option value="staff">Staff</Select.Option><Select.Option value="admin">Admin</Select.Option></Select>
-          </Form.Item>
+          <Form.Item label="Quyền hạn" name="role" initialValue="Nhân viên kho"></Form.Item>
+            {/*<Select><Select.Option value="staff">Staff</Select.Option><Select.Option value="admin">Admin</Select.Option></Select>*/}
           <Button type="primary" htmlType="submit" loading={loading} block>Tạo tài khoản</Button>
         </Form>
       </Modal>
