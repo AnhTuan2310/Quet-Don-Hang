@@ -4,10 +4,12 @@ import { collection, query, orderBy, limit, onSnapshot, deleteDoc, doc } from 'f
 import { Table, Card, Tag, Button, Popconfirm, message, Tooltip } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
-const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truyền vào
+const OrderTable = ({ isAdmin }) => {
   const [logs, setLogs] = useState([]);
+  const [userMap, setUserMap] = useState({}); // Biến này để lưu danh sách tên mới nhất
   const [loading, setLoading] = useState(true);
 
+  // 1. Lấy danh sách Scan Logs
   useEffect(() => {
     const q = query(
       collection(db, "scan_logs"),
@@ -27,7 +29,19 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
     return () => unsubscribe();
   }, []);
 
-  // Hàm xóa lịch sử quét
+  // 2. Lấy danh sách Users (Để cập nhật tên mới nhất)
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+        const users = {};
+        snapshot.forEach(doc => {
+            // Tạo một từ điển: ID -> Tên Mới
+            users[doc.id] = doc.data().name;
+        });
+        setUserMap(users);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "scan_logs", id));
@@ -46,9 +60,16 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
     },
     {
       title: 'Người quét',
-      dataIndex: 'scanned_name',
-      key: 'scanned_name',
-      render: (name) => <Tag color="blue">{name}</Tag>
+      key: 'scanned_name', // Không dùng dataIndex trực tiếp
+      render: (_, record) => {
+          // Tìm tên trong danh sách user mới nhất (userMap) dựa vào ID (scanned_by)
+          // Nếu tìm thấy -> Hiển thị tên mới
+          // Nếu người đó bị xóa rồi -> Hiển thị tên cũ lưu trong log
+          const latestName = userMap[record.scanned_by];
+          const displayName = latestName || record.scanned_name || 'Không xác định';
+          
+          return <Tag color="blue">{displayName}</Tag>;
+      }
     },
     {
       title: 'Thời gian',
@@ -59,7 +80,6 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
         return new Date(timestamp.seconds * 1000).toLocaleString('vi-VN');
       }
     },
-    // Logic: Nếu là Admin thì mới thêm cột Hành động vào cuối mảng columns
     ...(isAdmin ? [{
         title: 'Hành động',
         key: 'action',
@@ -69,7 +89,6 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
             <Tooltip title="Xóa lịch sử này">
                 <Popconfirm 
                     title="Bạn chắc chắn muốn xóa?" 
-                    description="Hành động này không thể hoàn tác"
                     onConfirm={() => handleDelete(record.id)}
                     okText="Xóa"
                     cancelText="Hủy"
@@ -85,7 +104,7 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
     <Card 
       title="Lịch sử quét gần đây" 
       style={{ width: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-      styles={{ body:{padding: 10}} }
+      styles={{body: {padding:10}}}
     >
       <Table 
         dataSource={logs} 
