@@ -4,13 +4,17 @@ import { collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from 
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { Table, Tag, Card, Button, Modal, Form, Input, message, Select, Popconfirm, Tooltip } from 'antd';
-import { UserAddOutlined, DeleteOutlined, MailOutlined } from '@ant-design/icons';
+import { UserAddOutlined, DeleteOutlined, MailOutlined, EditOutlined } from '@ant-design/icons';
 
 const AdminUser = () => {
   const [users, setUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm] = Form.useForm();
 
   // 1. Lấy danh sách nhân viên Realtime
   useEffect(() => {
@@ -54,6 +58,30 @@ const AdminUser = () => {
     } finally {
       if (secondaryApp) try { deleteApp(secondaryApp); } catch(e){}
       setLoading(false);
+    }
+  };
+
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    editForm.setFieldsValue({
+        name: user.name,
+        email: user.email,
+        role: user.role
+    });
+    setIsEditModalOpen(true);
+  };
+  const handleUpdateUser = async (values) => {
+    if (!editingUser) return;
+    try {
+        await updateDoc(doc(db, "users", editingUser.id), {
+            name: values.name, // Cho phép sửa tên (nếu họ muốn đổi nghệ danh :D)
+            role: values.role
+            // KHÔNG update email ở đây
+        });
+        message.success("Đã cập nhật thông tin!");
+        setIsEditModalOpen(false);
+    } catch (error) {
+        message.error("Lỗi: " + error.message);
     }
   };
 
@@ -106,6 +134,15 @@ const AdminUser = () => {
         align: 'center',
         render: (_, record) => (
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+              <Tooltip title="Sửa thông tin">
+                    <Button 
+                        icon={<EditOutlined />} 
+                        size="small" 
+                        type="primary" 
+                        ghost
+                        onClick={() => openEditModal(record)} 
+                    />
+                </Tooltip>
                 <Tooltip title="Gửi mail Reset Password">
                     <Popconfirm 
                         title="Gửi mail đặt lại mật khẩu?" 
@@ -179,6 +216,40 @@ const AdminUser = () => {
           </Form.Item>
           
           <Button type="primary" htmlType="submit" loading={loading} block>Tạo tài khoản</Button>
+        </Form>
+      </Modal>
+      <Modal title="Cập nhật thông tin" 
+        open={isEditModalOpen} 
+        onCancel={() => setIsEditModalOpen(false)} 
+        footer={null}
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdateUser}>
+            {/* Email bị khóa - Readonly */}
+            <Form.Item label="Email (Không thể sửa)" name="email">
+                <Input disabled style={{ color: '#000', cursor: 'default', background: '#f5f5f5' }} />
+            </Form.Item>
+
+            {/* Tên cho phép sửa (cập nhật lại tên hiển thị cho tương lai) */}
+            <Form.Item 
+                label="Tên hiển thị" 
+                name="name" 
+                rules={[{ required: true, message: 'Không được để trống tên' }]}
+            >
+                <Input placeholder="Nhập tên mới..." />
+            </Form.Item>
+
+            <Form.Item label="Quyền hạn" name="role">
+                <Select>
+                    <Select.Option value="staff">Nhân viên kho (Staff)</Select.Option>
+                    <Select.Option value="admin">Quản trị viên (Admin)</Select.Option>
+                </Select>
+            </Form.Item>
+
+            <Button type="primary" htmlType="submit" block>Lưu thay đổi</Button>
+            
+            <div style={{ marginTop: 15, fontSize: 12, color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
+                * Nếu muốn đổi Email, vui lòng xóa nhân viên này và tạo mới.
+            </div>
         </Form>
       </Modal>
     </Card>
