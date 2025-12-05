@@ -85,7 +85,7 @@ const OrderTable = ({ isAdmin }) => { // Nhận prop isAdmin từ App.jsx truy�
     <Card 
       title="Lịch sử quét gần đây" 
       style={{ width: '100%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-      bodyStyle={{ padding: 0 }}
+      styles={{ body:{padding: 10}} }
     >
       <Table 
         dataSource={logs} 

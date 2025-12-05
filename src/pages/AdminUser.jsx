@@ -171,7 +171,7 @@ const AdminUser = () => {
     <Card 
         title="Quản lý nhân viên" 
         extra={<Button type="primary" icon={<UserAddOutlined />} onClick={() => setIsModalOpen(true)}>Thêm nhân viên</Button>}
-        bodyStyle={{ padding: '10px' }}
+        style={{ body: { padding: 10 } }}
     >
       <Table 
         dataSource={users} 

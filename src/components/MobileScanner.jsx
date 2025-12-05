@@ -118,7 +118,7 @@ const MobileScanner = () => {
     <Card 
         title={lastCodeDisplay ? <span style={{color: 'green', fontSize: 18}}>Vừa quét: {lastCodeDisplay}</span> : `Máy quét: ${currentUserName}`} 
         style={{ marginTop: 10, textAlign: 'center', width: '100%' }}
-        bodyStyle={{ padding: '10px' }}
+        styles={{ body: { padding: 10 } }}
     >
       <div 
         onClick={focusInput} 
@@ -139,7 +139,7 @@ const MobileScanner = () => {
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
             autoFocus
-            bordered={false}
+            variant="borderless"
             style={{ textAlign: 'center', background: 'transparent' }}
           />
       </div>
@@ -165,7 +165,7 @@ const MobileScanner = () => {
       )}
     </Card>
   );
-  
+
 };
 
 export default MobileScanner;

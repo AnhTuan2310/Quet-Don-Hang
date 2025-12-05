@@ -91,7 +91,7 @@ function App() {
 
   // Màn hình chờ khi đang tải dữ liệu
   if (loading) {
-    return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Spin size="large" tip="Đang tải dữ liệu..." /></div>;
+    return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Spin size="large" tip="Đang tải dữ liệu..." fullscreen/></div>;
   }
 
   // --- GIAO DIỆN ĐĂNG NHẬP ---
@@ -112,7 +112,7 @@ function App() {
         </Card>
 
         {/* Modal Quên mật khẩu */}
-        
+
         <Modal 
             title="Khôi phục mật khẩu" 
             open={isResetModalOpen} 
