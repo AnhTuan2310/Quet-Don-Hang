@@ -165,6 +165,7 @@ const MobileScanner = () => {
       )}
     </Card>
   );
+  
 };
 
 export default MobileScanner;
